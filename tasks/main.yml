@@ -1,0 +1,97 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for ansible-role-quiz
+
+# --- 1. Pré-requis (Compatible tous OS) ---
+- name: Installer git et curl
+  ansible.builtin.package:
+    name:
+      - git
+    state: present
+
+# --- 2. Installation Node.js selon l'OS ---
+- name: Setup NodeSource (RedHat/Rocky)
+  ansible.builtin.shell: "curl -fsSL https://rpm.nodesource.com/setup_22.x | bash -"
+  when: ansible_os_family == "RedHat"
+
+- name: Setup NodeSource (Debian/Ubuntu)
+  ansible.builtin.shell: "curl -fsSL https://deb.nodesource.com/setup_22.x | bash -"
+  when: ansible_os_family == "Debian"
+
+- name: Installer Node.js
+  ansible.builtin.package:
+    name: nodejs
+    state: present
+
+# --- 3. Déploiement App ---
+- name: Mettre à jour les paquets ansible sur ubuntu
+  ansible.builtin.apt:
+    name: "*"
+    state: latest
+    update_cache: true
+  when: ansible_os_family == "Debian"
+
+- name: Mettre à jour les paquets ansible sur rocky
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+    update_cache: true
+  when: ansible_os_family == "RedHat"
+
+- name: Installer git sur debian
+  ansible.builtin.apt:
+    name: git
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Installer git sur rocky
+  ansible.builtin.dnf:
+    name: git
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Télécharger le script Node.js
+  ansible.builtin.get_url:
+    url: https://deb.nodesource.com/setup_18.x
+    dest: /tmp/setup_node.sh
+    mode: "0755"
+    force: yes
+  when: ansible_os_family == "Debian"
+
+- name: Installer Node.js sur debian
+  ansible.builtin.apt:
+    name: nodejs
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Installer Node.js sur rocky
+  ansible.builtin.dnf:
+    name: nodejs
+    state: present
+  when: ansible_os_family == "Rocky"
+
+- name: Cloner de dépôt git
+  ansible.builtin.git:
+    repo: https://gitlab.com/ftutorials-labs/quiz-ansible.git
+    dest: /opt/quiz-ansible
+    version: main
+    update: true
+    force: yes
+
+- name: Installer dépendances (npm install)
+  ansible.builtin.shell: npm install
+  args:
+    chdir: /opt/quiz-ansible
+
+- name: Compiler l'app
+  ansible.builtin.command: npm run build
+  args:
+    chdir: /opt/quiz-ansible
+
+- name: Installer serve en global (via shell)
+  ansible.builtin.shell: npm install -g serve
+
+- name: Lancer l'app en tache de fond
+  ansible.builtin.shell: "nohup serve -s build -l 3000 > /var/log/quiz.log 2>&1 &"
+  args:
+    chdir: /opt/quiz-ansible
