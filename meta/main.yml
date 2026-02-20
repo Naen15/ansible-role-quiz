@@ -1,7 +1,7 @@
 #SPDX-License-Identifier: MIT-0
 galaxy_info:
-  author: your name
-  description: your role description
+  author: Naen15
+  description:  Role Ansible portable pour deployer l'application Node.js quiz-ansible sur Debian/Ubuntu et RedHat/Rocky.
   company: your company (optional)
 
   # If the issue tracker for your role is not on github, uncomment the
