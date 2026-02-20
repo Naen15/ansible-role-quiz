@@ -1,0 +1,7 @@
+---
+- name: Exo 14 transférer et exécuter un script shell sur des machines distantes
+  hosts: all
+
+  tasks:
+    - name: transférer et exécuter un script
+      script: /root/script2.sh

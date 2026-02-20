@@ -1,0 +1,13 @@
+---
+- name: exo 16 créer un utilisateur sur les machines distantes
+  hosts: all
+  become: yes
+  
+  tasks:
+    - name: créer utilisateur pierre
+      user:
+        name: pierre
+        home: /home/pierre
+        shell: /bin/bash
+        state: present 
+

@@ -1,0 +1,12 @@
+---
+- hosts: client1
+  become: yes
+
+  tasks:
+    - name: Créer le script /root/script1.sh
+      copy:
+        dest: /root/script1.sh
+        content: |
+          #!/bin/bash
+          touch /root/test1
+        mode: '0755'

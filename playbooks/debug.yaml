@@ -1,0 +1,8 @@
+---
+- name: Exo 2 playbook
+  hosts: localhost
+
+  tasks:
+    - name: Show Hello world
+      ansible.builtin.debug:
+        msg: "hello world"

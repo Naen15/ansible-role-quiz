@@ -1,0 +1,12 @@
+---
+- name: Exo 9 copy file to client
+  hosts: all
+
+  tasks:
+    - name: Copy file to client
+      ansible.builtin.copy:
+        src: /root/sdv.conf
+        dest: /tmp/sdv.conf
+        owner: root
+        group: root
+        mode: "0744"

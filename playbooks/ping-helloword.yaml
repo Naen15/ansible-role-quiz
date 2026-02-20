@@ -1,0 +1,11 @@
+---
+- name: exo3 playbook
+  hosts: localhost
+
+  tasks:
+    - name: connectivity test
+      ping:
+
+    - name: show Hello world
+      debug:
+        msg: "hello world"

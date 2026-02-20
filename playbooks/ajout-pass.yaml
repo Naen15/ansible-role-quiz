@@ -1,0 +1,10 @@
+---
+- name: Exo 17 ajouter ou modifier un mot de passe d'un utilisateur sur les machines distantes
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: creér et modifier un mdp
+      user:
+        name: pierre
+        password: "{{ newpass | password_hash('sha512') }}"
