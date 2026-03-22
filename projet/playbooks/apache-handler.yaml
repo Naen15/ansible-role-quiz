@@ -1,0 +1,18 @@
+---
+- name: Exo 26 - Mise à jour index.html avec Handler
+  hosts: client1, client2
+  become: true
+
+  tasks:
+    - name: Copier le fichier index.html
+      ansible.builtin.copy:
+        src: /root/index.html
+        dest: /var/www/html/index.html
+        mode: "0644"
+      notify: Redemarrer apache2
+
+  handlers:
+    - name: Redemarrer apache2
+      ansible.builtin.service:
+        name: apache2
+        state: restarted

@@ -1,0 +1,15 @@
+#SPDX-License-Identifier: MIT-0
+---
+# vars file for ansible-role-quiz
+# Identifiants base de donnees
+db_utilisateur: "admin"
+db_mot_de_passe: "S3cur3P@ss_2024!"
+
+# Cle API externe
+api_key: "sk-7f8a9b2c3d4e5f6a7b8c9d0e1f2a3b4c"
+
+# Mot de passe administrateur applicatif
+admin_mot_de_passe: "Adm1nS3cr3t!"
+
+# Token d'authentification
+auth_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exemple_token_secret"

@@ -1,0 +1,6 @@
+---
+- name: Ansible Vault - Deploiement via role
+  hosts: all
+  become: true
+  roles:
+    - ansible-vault

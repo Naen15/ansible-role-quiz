@@ -1,0 +1,17 @@
+---
+- name: Exo 20 copier avec des variables
+  hosts: all
+  become: true
+
+  vars:
+    src_file: /root/sdv.conf
+    dest_path: /tmp
+
+  tasks:
+    - name: Copier un fichier vers les hosts
+      ansible.builtin.copy:
+        src: "{{ src_file }}"
+        dest: "{{ dest_path }}"
+        owner: root
+        group: root
+        mode: "0755"

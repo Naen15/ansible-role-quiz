@@ -1,0 +1,15 @@
+---
+- name: exo 4 et 6 installer et demarrer apache
+  hosts: client3, client4
+
+  tasks:
+    - name: installer apache
+      dnf:
+        update_cache: true
+        name: httpd
+        state: present
+
+    - name: démarre apache
+      service:
+        name: httpd
+        state: started

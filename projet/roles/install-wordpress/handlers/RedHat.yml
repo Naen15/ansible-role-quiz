@@ -1,0 +1,12 @@
+---
+- name: Reload Apache Rocky
+  shell: pkill -HUP httpd || /usr/sbin/httpd -DFOREGROUND &
+  listen: "Redémarrer Apache"
+  when: ansible_os_family == "RedHat"
+  ignore_errors: yes
+
+- name: Reload MariaDB Rocky
+  shell: pkill -HUP mysqld || mysqld_safe --datadir=/var/lib/mysql &
+  listen: "Redémarrer MariaDB"
+  when: ansible_os_family == "RedHat"
+  ignore_errors: yes

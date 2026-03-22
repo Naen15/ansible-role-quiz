@@ -1,0 +1,11 @@
+#SPDX-License-Identifier: MIT-0
+---
+# vars file for maintenance-page
+---
+# vars/main.yml
+nom_app: "Portail Client SDVH"
+fin_maintenance: "20 février 3000 à 08h00"
+email_contact: "support@sdvh.com"
+
+# On définit le dossier racine de Nginx selon l'OS (car ça change !)
+nginx_root: "{{ '/var/www/html' if ansible_os_family == 'Debian' else '/usr/share/nginx/html' }}"

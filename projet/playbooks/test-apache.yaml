@@ -1,0 +1,8 @@
+---
+- name: Playbook de test apache
+  hosts: all
+  become: true
+  tasks:
+    - name: Installer apache2
+      ansible.builtin.command: apt install apache2
+      changed_when: false

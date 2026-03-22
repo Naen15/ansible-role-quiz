@@ -1,0 +1,27 @@
+---
+- name: Exo 18 gestion des services
+  hosts: client1, client2
+  become: yes
+
+
+  vars:
+    service_state_start: started
+    service_state_stop: stopped
+    service_state_restart: restarted
+    package: apache2
+
+  tasks:
+    - name: demarrer appache
+      service:
+        name: "{{package}}"
+        state: "{{service_state_start}}"
+
+    - name: arrêter appache
+      service:
+        name: "{{package}}"
+        state: "{{service_state_stop}}"
+
+    - name: redemarrer apache
+      service:
+        name: "{{package}}"
+        state: "{{service_state_restart}}"

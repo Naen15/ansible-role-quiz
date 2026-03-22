@@ -1,0 +1,42 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for maintenance-page
+
+# 1. Mise à jour du cache et Installation (Adapté aux 2 OS)
+- name: Installer Nginx (et EPEL pour Rocky)
+  block:
+    - name: Installer EPEL (Rocky/RedHat uniquement)
+      ansible.builtin.dnf:
+        name: epel-release
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Installer Nginx
+      ansible.builtin.package:
+        name: nginx
+        state: present
+
+# 2. Démarrage
+- name: Démarrer et activer Nginx (Solution Docker sans systemd)
+  ansible.builtin.command: nginx
+  ignore_errors: yes
+
+# 3. Suppression page par défaut
+- name: Supprimer la page index par défaut
+  ansible.builtin.file:
+    path: "{{ nginx_root }}/index.html"
+    state: absent
+
+# 4. Génération du template
+- name: Générer la page de maintenance
+  ansible.builtin.template:
+    src: maintenance.html.j2
+    dest: "{{ nginx_root }}/maintenance.html"
+    mode: "0644"
+
+# 5. Activation
+- name: Activer la maintenance (remplacer index.html)
+  ansible.builtin.copy:
+    remote_src: yes
+    src: "{{ nginx_root }}/maintenance.html"
+    dest: "{{ nginx_root }}/index.html"

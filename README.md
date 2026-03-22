@@ -1,13 +1,13 @@
 # 🚀 Débuter avec Ansible sous Docker
 
-Bienvenue dans ce **LAB** d’initiation à **Ansible** !  
+Bienvenue dans ce **LAB** d’initiation à **Ansible** !
 Tu vas apprendre à **automatiser des tâches répétitives** sur des machines Linux dans un environnement **conteneurisé**, sans rien casser sur ta machine, et en consommant **le moins de ressources possibles**.
 
 > 🐳 Grâce à **Docker**, chaque machine virtuelle est remplacée par un **conteneur léger**, rapide à lancer et à supprimer. C’est idéal pour s’exercer sur une configuration proche de la réalité, sans utiliser des machines virtuelles lourdes.
 
 ---
 
-⚠️ **IMPORTANT** :  
+⚠️ **IMPORTANT** :
 **LES IMAGES DOCKER DE CE LAB SONT RÉSERVÉES À DES FINS DE TEST ET D’APPRENTISSAGE UNIQUEMENT !** ➡️ **NE PAS LES UTILISER DANS UN ENVIRONNEMENT DE PRODUCTION.**
 
 ---
@@ -88,7 +88,7 @@ ssh root@localhost -p 2226  # client4
 
 🔑 Mot de passe : P@ssw0rd
 
-⚠️ **IMPORTANT** :  
+⚠️ **IMPORTANT** :
 **LES IMAGES DOCKER DE CE LAB SONT RÉSERVÉES À DES FINS DE TEST ET D’APPRENTISSAGE UNIQUEMENT !** ➡️ **NE PAS LES UTILISER DANS UN ENVIRONNEMENT DE PRODUCTION.**
 
 Le dossier `config` est partagé dans le conteneur ansible à l’emplacement : `/root/config`.

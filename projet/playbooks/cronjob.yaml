@@ -1,0 +1,23 @@
+---
+- name: Exo 16 planifier un cronjob
+  hosts: client1
+
+  tasks:
+    - name: Mettre à jour des paquets apt
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Installer le paquet cron
+      ansible.builtin.apt:
+        name: cron
+        state: present
+
+    - name: Planifier le script(15H10)
+      ansible.builtin.cron:
+        name: execution Script lundi à 15H10
+        minute: 10
+        hour: 15
+        weekday: 1
+        job: /root/script1.sh
+        state: present

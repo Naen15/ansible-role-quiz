@@ -1,0 +1,10 @@
+---
+- name: Reload Apache Debian
+  command: service apache2 reload
+  listen: "Redémarrer Apache"
+  when: ansible_os_family == "Debian"
+
+- name: Reload MariaDB Debian
+  command: service mysql reload
+  listen: "Redémarrer MariaDB"
+  when: ansible_os_family == "Debian"

@@ -1,0 +1,13 @@
+---
+- name: Exo 21 Vérifier l'uptime des serveurs Ubuntu
+  hosts: ubuntu
+  become: yes
+
+  tasks:
+    - name: Exécuter la commande uptime
+      command: uptime
+      register: resultat_uptime
+
+    - name: Afficher le résultat
+      debug:
+        var: resultat_uptime.stdout

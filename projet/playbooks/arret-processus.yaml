@@ -1,0 +1,14 @@
+---
+- name: Exo 31 arret de processus en cours
+  hosts: client1
+  become: true
+
+  tasks:
+    - name: Rechercher le PID dun processus en cours
+      shell: pgrep sleep
+      register: process_encours
+      ignore_errors: yes
+
+    - name: Tuer le processus trouver
+      ansible.builtin.shell: "kill {{ process_encours.stdout }}"
+      when: process_encours.rc == 0

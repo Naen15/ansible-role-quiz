@@ -1,0 +1,128 @@
+---
+- name: Charger les variables spécifiques à l'OS
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Installer les paquets pré-requis (Apache, PHP, MariaDB, Python3-PyMySQL)
+  package:
+    name: "{{ system_packages }}"
+    state: present
+
+- name: Vérifier si MariaDB est déjà lancé
+  shell: pgrep -x mariadb || pgrep -x mysqld
+  register: mariadb_running
+  ignore_errors: yes
+  changed_when: false
+
+- name: Démarrer MariaDB via mysqld_safe (en arrière-plan)
+  shell: "nohup mysqld_safe --datadir=/var/lib/mysql > /dev/null 2>&1 &"
+  when: mariadb_running.rc != 0
+  async: 10 # Lance en asynchrone pour ne pas bloquer Ansible
+  poll: 0
+
+- name: Attendre que MariaDB soit prêt (port 3306)
+  wait_for:
+    port: 3306
+    delay: 5
+    timeout: 60
+
+- name: Définir le mot de passe root MariaDB (première fois ou mise à jour)
+  community.mysql.mysql_user:
+    name: root
+    password: "{{ mysql_root_password }}"
+    host_all: yes
+    login_unix_socket: /var/lib/mysql/mysql.sock # Souvent nécessaire sans mot de passe initial
+    state: present
+
+- name: Supprimer la base de données de test
+  community.mysql.mysql_db:
+    name: test
+    state: absent
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+
+- name: Créer la base de données WordPress
+  community.mysql.mysql_db:
+    name: "{{ wp_db_name }}"
+    state: present
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+
+- name: Créer l'utilisateur WordPress et lui donner les droits
+  community.mysql.mysql_user:
+    name: "{{ wp_db_user }}"
+    password: "{{ wp_db_password }}"
+    priv: "{{ wp_db_name }}.*:ALL"
+    host: "%" # Autoriser l'accès depuis n'importe où (souvent utile en conteneur)
+    state: present
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+
+- name: Télécharger et extraire WordPress
+  unarchive:
+    src: "{{ wp_url }}"
+    dest: "/tmp"
+    remote_src: yes
+    creates: "/tmp/wordpress/index.php"
+
+- name: Copier les fichiers WordPress vers le dossier web
+  copy:
+    src: "/tmp/wordpress/"
+    dest: "{{ web_root }}/"
+    remote_src: yes
+    owner: "{{ apache_user }}"
+    group: "{{ apache_group }}"
+    mode: "0755"
+
+- name: Supprimer la page index.html par défaut
+  file:
+    path: "{{ web_root }}/index.html"
+    state: absent
+
+- name: Configurer wp-config.php depuis le template
+  template:
+    src: wp-config.php.j2
+    dest: "{{ web_root }}/wp-config.php"
+    owner: "{{ apache_user }}"
+    group: "{{ apache_group }}"
+    mode: "0640"
+
+- name: Configurer le VirtualHost Apache
+  template:
+    src: wordpress.conf.j2
+    dest: "{{ apache_conf_path }}"
+  notify: Redémarrer Apache
+
+- name: Activer le site et le module rewrite (Ubuntu uniquement)
+  block:
+    - name: Activer le site WordPress (a2ensite)
+      command: a2ensite wordpress.conf
+      args:
+        creates: /etc/apache2/sites-enabled/wordpress.conf
+
+    - name: Activer le module rewrite (a2enmod)
+      command: a2enmod rewrite
+      args:
+        creates: /etc/apache2/mods-enabled/rewrite.load
+  when: ansible_os_family == "Debian"
+  notify: Redémarrer Apache
+
+- name: Vérifier si Apache est lancé
+  shell: pgrep -x apache2 || pgrep -x httpd
+  register: apache_running
+  ignore_errors: yes
+  changed_when: false
+
+- name: Démarrer Apache (Ubuntu - service)
+  command: service apache2 start
+  when:
+    - ansible_os_family == "Debian"
+    - apache_running.rc != 0
+
+- name: Démarrer Apache (Rocky/RedHat - httpd foreground detach)
+  # On utilise "&" pour ne pas bloquer le playbook, car -DFOREGROUND est bloquant
+  shell: "/usr/sbin/httpd -DFOREGROUND &"
+  when:
+    - ansible_os_family == "RedHat"
+    - apache_running.rc != 0
+  async: 10
+  poll: 0

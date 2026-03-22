@@ -1,0 +1,7 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for k3d-deploy
+cluster_name: "k3d-lab"
+node_port: 30080
+welcome_message: "Bienvenue dans le k3d LAB déploye via un role ansible) ! "
+arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"

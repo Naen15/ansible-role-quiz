@@ -1,0 +1,9 @@
+---
+- name: Exo 5 désinstaller apache
+  hosts: localhost
+
+  tasks:
+  - name: désinstaller apache
+    apt:
+      name: apache2
+      state: absent

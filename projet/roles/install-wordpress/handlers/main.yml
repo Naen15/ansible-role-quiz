@@ -1,0 +1,8 @@
+#SPDX-License-Identifier: MIT-0
+---
+# handlers file for install-wordpress
+- name: Importer les handlers Debian
+  import_tasks: Debian.yml
+
+- name: Importer les handlers RedHat
+  import_tasks: RedHat.yml

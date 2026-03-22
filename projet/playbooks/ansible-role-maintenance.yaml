@@ -1,0 +1,6 @@
+---
+- name: Déploiement Page de Maintenance SDVH
+  hosts: all
+  remote_user: root
+  roles:
+    - maintenance-page

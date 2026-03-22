@@ -1,0 +1,9 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for install-wordpress
+---
+mysql_root_password: "examplerootPW"
+wp_db_name: "wordpress"
+wp_db_user: "naen"
+wp_db_password: "P@ssw0rd"
+wp_url: "https://wordpress.org/latest.zip"

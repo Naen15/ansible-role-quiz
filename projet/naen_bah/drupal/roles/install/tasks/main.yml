@@ -1,0 +1,82 @@
+---
+- name: Installer les prérequis sur Ubuntu (Debian)
+  ansible.builtin.apt:
+    name:
+      - apache2
+      - php
+      - php-mysql
+      - php-xml
+      - php-gd
+      - mariadb-server
+      - wget
+      - unzip
+    state: present
+    update_cache: yes
+  when: ansible_os_family == 'Debian'
+
+- name: Installer les prérequis sur Rocky Linux (RedHat)
+  ansible.builtin.dnf:
+    name:
+      - httpd
+      - php
+      - php-mysqlnd
+      - php-xml
+      - php-gd
+      - mariadb-server
+      - wget
+      - unzip
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: S'assurer que le service Web est démarré et activé
+  ansible.builtin.service:
+    name: "{{ 'apache2' if ansible_os_family == 'Debian' else 'httpd' }}"
+    state: started
+    enabled: yes
+
+- name: S'assurer que le service MariaDB est démarré et activé
+  ansible.builtin.service:
+    name: "{{ 'mariadb' if ansible_os_family == 'Debian' else 'mariadb' }}"
+    state: started
+    enabled: yes
+- name: Installer la librairie Python MySQL (Debian)
+  ansible.builtin.apt:
+    name: python3-pymysql
+    state: present
+  when: ansible_os_family == 'Debian'
+
+- name: Installer la librairie Python MySQL (RedHat)
+  ansible.builtin.dnf:
+    name: python3-PyMySQL
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: Créer la base de données pour Drupal
+  community.mysql.mysql_db:
+    name: "{{ drupal_db_name }}"
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Créer l'utilisateur de base de données Drupal
+  community.mysql.mysql_user:
+    name: "{{ drupal_db_user }}"
+    password: "{{ drupal_db_password }}"
+    priv: "{{ drupal_db_name }}.*:ALL"
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Télécharger et extraire Drupal
+  ansible.builtin.unarchive:
+    src: "https://ftp.drupal.org/files/projects/drupal-{{ drupal_version }}.tar.gz"
+    dest: /var/www/html/
+    remote_src: yes
+    extra_opts: [--strip-components=1]
+    creates: /var/www/html/index.php
+
+- name: Configurer les permissions du dossier web
+  ansible.builtin.file:
+    path: /var/www/html/
+    state: directory
+    owner: "{{ 'www-data' if ansible_os_family == 'Debian' else 'apache' }}"
+    group: "{{ 'www-data' if ansible_os_family == 'Debian' else 'apache' }}"
+    recurse: yes

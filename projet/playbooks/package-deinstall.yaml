@@ -1,0 +1,25 @@
+---
+- name: Exo 30 desinstaller des paquets
+  hosts: all
+  become: true
+
+  vars:
+    paquets_a_supprimer:
+      - telnet
+      - wget
+      - curl
+
+  tasks:
+    - name: Desinstaller sur Debian
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: absent
+      loop: "{{ paquets_a_supprimer }}"
+      when: ansible_os_family == "Debian"
+
+    - name: Desinstaller sur RedHat
+      ansible.builtin.yum:
+        name: "{{ item }}"
+        state: absent
+      loop: "{{ paquets_a_supprimer }}"
+      when: ansible_os_family == "RedHat"

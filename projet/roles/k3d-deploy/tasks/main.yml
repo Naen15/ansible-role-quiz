@@ -1,0 +1,56 @@
+---
+# tasks file for k3d-deploy
+
+- name: Installer git (curl est déjà présent sur Rocky)
+  ansible.builtin.package:
+    name: git
+    state: present
+
+- name: Installer kubectl
+  ansible.builtin.shell: |
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/{{ arch }}/kubectl"
+    chmod +x kubectl
+    mv kubectl /usr/local/bin/
+  args:
+    creates: /usr/local/bin/kubectl
+
+- name: Installer k3d
+  ansible.builtin.shell: "curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash"
+  args:
+    creates: /usr/local/bin/k3d
+
+- name: Forcer la suppression des conteneurs K3d
+  ansible.builtin.shell: "docker rm -f $(docker ps -a -q -f name=k3d-k3d-lab) || true"
+  ignore_errors: yes
+
+# Conteneur déjà créé pendant les test
+
+- name: Forcer la suppression du réseau K3d
+  ansible.builtin.shell: "docker network rm k3d-k3d-lab || true"
+  ignore_errors: yes
+
+- name: Forcer la suppression des volumes K3d
+  ansible.builtin.shell: "docker volume rm k3d-k3d-lab-images || true"
+  ignore_errors: yes
+- name: Attendre que le nettoyage soit fini
+  ansible.builtin.pause:
+    seconds: 10
+
+  # 4. Cluster créé pendant le test
+- name: Supprimer l'ancien cluster
+  ansible.builtin.command: k3d cluster delete {{ cluster_name }}
+  ignore_errors: yes
+
+- name: Créer le cluster {{ cluster_name }}
+  ansible.builtin.command: k3d cluster create {{ cluster_name }} --agents 1 -p "{{ node_port }}:{{ node_port }}@agent:0"
+
+- name: Générer le manifeste
+  ansible.builtin.template:
+    src: nginx.yaml.j2
+    dest: /tmp/nginx.yaml
+
+- name: Appliquer le manifeste
+  ansible.builtin.command: kubectl apply -f /tmp/nginx.yaml
+
+- debug:
+    msg: "Site accessible sur http://{{ ansible_host }}:{{ node_port }}"

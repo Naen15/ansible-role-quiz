@@ -1,0 +1,10 @@
+---
+- name: Exo 20 créer un file sur les host à l'aide d'une variable
+  hosts: all
+  become: yes
+  
+  vars:
+    nom_fichier= toto
+
+  tasks:
+  

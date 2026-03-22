@@ -1,0 +1,7 @@
+---
+- name: Test du rôle K3d
+  hosts: client1
+  become: true
+
+  roles:
+    - k3d-deploy

@@ -1,0 +1,12 @@
+---
+- name: Déploiement automatisé de Drupal
+  hosts: all
+  become: yes
+
+  collections:
+    - naen_bah.drupal
+
+  tasks:
+    - name: Exécuter le rôle d'installation Drupal
+      ansible.builtin.include_role:
+        name: install

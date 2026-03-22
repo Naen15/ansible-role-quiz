@@ -1,0 +1,35 @@
+---
+# ----------------------------------------------------------
+# Test 1 : Utiliser le rôle de la collection
+# ----------------------------------------------------------
+- name: TP Collections - Tester le rôle maintenance
+  hosts: all
+  become: true
+  collections:
+    - infracloud.utils
+
+  roles:
+    - infracloud.utils.maintenance
+
+# ----------------------------------------------------------
+# Test 2 : Utiliser le module custom de la collection
+# ----------------------------------------------------------
+- name: TP Collections - Tester le module info_serveur
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Collecter les informations du serveur
+      infracloud.utils.info_serveur:
+        afficher_memoire: true
+        afficher_disque: true
+      register: infos_serveur
+
+    - name: Afficher les informations collectées
+      ansible.builtin.debug:
+        msg: |
+          === Rapport serveur ===
+          Nom : {{ infos_serveur.hostname }}
+          CPU : {{ infos_serveur.cpu_count }}
+          RAM : {{ infos_serveur.memoire_totale_mo | default('N/A') }} Mo
+          Disque : {{ infos_serveur.disque_racine_go | default('N/A') }} Go

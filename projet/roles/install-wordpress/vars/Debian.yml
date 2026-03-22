@@ -1,0 +1,21 @@
+#SPDX-License-Identifier: MIT-0
+---
+# vars file for install-wordpress
+---
+#debian
+apache_service: apache2
+mysql_service: mariadb
+apache_user: www-data
+apache_group: www-data
+web_root: /var/www/html
+apache_conf_path: /etc/apache2/sites-available/wordpress.conf
+# Paquets nécessaires
+system_packages:
+  - apache2
+  - php
+  - libapache2-mod-php
+  - php-mysql
+  - mariadb-server
+  - wget
+  - unzip
+  - python3-pymysql

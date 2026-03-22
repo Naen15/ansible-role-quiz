@@ -1,0 +1,10 @@
+---
+- name: exo 10 donner des droits aux files
+  hosts: client1, client2
+
+  tasks:
+    - name: Donner des droits d'écriture
+      file:
+        path: /root/vinci
+        mode: '0200'  # les droits écriture,
+        state: file

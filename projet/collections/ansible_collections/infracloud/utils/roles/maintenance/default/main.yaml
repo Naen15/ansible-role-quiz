@@ -1,0 +1,20 @@
+---
+namespace: infracloud
+name: utils
+version: 1.0.0
+readme: README.md
+authors:
+- Votre Nom <bahnaen@gmail.com>
+description: >-
+Collection utilitaire InfraCloud : outils de maintenance serveur,
+monitoring de base et configuration standardisee.
+license:
+- GPL-3.0-or-later
+tags:
+- maintenance
+- monitoring
+- linux
+- infrastructure
+dependencies: {}
+repository:
+https://github.com/VOTRE_UTILISATEUR/ansible-collection-infracloud-utils

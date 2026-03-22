@@ -1,0 +1,5 @@
+---
+drupal_db_name: "drupal_db"
+drupal_db_user: "drupal_user"
+drupal_db_password: "SecurePassword123!"
+drupal_version: "10.2.4"

@@ -1,0 +1,13 @@
+---
+- name: Déploiement de WordPress sur Conteneurs (Ubuntu & Rocky)
+  hosts: all
+  become: yes
+  gather_facts: yes 
+
+  vars:
+    wp_db_name: "wordpress_test"
+    wp_db_user: "admin_test"
+    wp_db_password: "secure_password_123"
+
+  roles:
+    - role:

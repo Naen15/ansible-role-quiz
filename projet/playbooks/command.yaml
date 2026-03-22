@@ -1,0 +1,8 @@
+---
+- name: Exo 13 comparer module command et shell
+  hosts: client1
+
+  tasks:
+    - name: Exécuter avec command
+      ansible.builtin.command: cat /etc/passwd | grep root
+      changed_when: false

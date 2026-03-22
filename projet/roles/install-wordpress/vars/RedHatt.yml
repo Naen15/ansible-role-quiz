@@ -1,0 +1,16 @@
+#Rocky
+apache_service: httpd
+mysql_service: mariadb
+apache_user: apache
+apache_group: apache
+web_root: /var/www/html
+apache_conf_path: /etc/httpd/conf.d/wordpress.conf
+
+system_packages:
+  - httpd
+  - php
+  - php-mysqlnd
+  - mariadb-server
+  - wget
+  - unzip
+  - python3-PyMySQL

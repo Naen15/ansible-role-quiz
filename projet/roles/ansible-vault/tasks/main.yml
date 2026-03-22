@@ -1,0 +1,89 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for /root/projet/roles/ansible-vault
+# Vérification de la connectivité
+- name: Verifier la connectivite de la machine
+  ansible.builtin.ping:
+
+# --- Creation de l'utilisateur applicatif ---
+- name: Creer le groupe applicatif
+  ansible.builtin.group:
+    name: "{{ nom_groupe_app }}"
+    state: present
+
+- name: Creer l'utilisateur applicatif avec mot de passe chiffre
+  ansible.builtin.user:
+    name: "{{ nom_utilisateur_app }}"
+    group: "{{ nom_groupe_app }}"
+    shell: /bin/bash
+    home: "/home/{{ nom_utilisateur_app }}"
+    create_home: true
+    password: "{{ mot_de_passe_utilisateur | password_hash('sha512') }}"
+    comment: "Utilisateur applicatif cree par le role ansible-vault"
+
+# --- Deploiement de la configuration avec secrets ---
+- name: Creer le repertoire de configuration
+  ansible.builtin.file:
+    path: "{{ repertoire_config }}"
+    state: directory
+    owner: "{{ nom_utilisateur_app }}"
+    group: "{{ nom_groupe_app }}"
+    mode: "0750"
+
+- name: Deployer le fichier de configuration avec les secrets
+  ansible.builtin.template:
+    src: app_config.conf.j2
+    dest: "{{ repertoire_config }}/app_config.conf"
+    owner: "{{ nom_utilisateur_app }}"
+    group: "{{ nom_groupe_app }}"
+    mode: "0640"
+
+- name: Verifier que le fichier de configuration contient les bonnes valeurs
+  ansible.builtin.shell: |
+    grep -c "mot_de_passe=" {{ repertoire_config }}/app_config.conf
+  register: verification_config
+  changed_when: false
+
+- name: Afficher le resultat de la verification
+  ansible.builtin.debug:
+    msg: "Le fichier de configuration contient {{ verification_config.stdout }} ligne(s) avec un mot de passe"
+
+# --- Affichage securise des variables ---
+- name: Afficher le nom de l'application (variable non sensible)
+  ansible.builtin.debug:
+    msg: "Application : {{ nom_application }} | Environnement : {{ environnement }}"
+
+- name: Afficher l'utilisateur de la base de donnees (variable chiffree)
+  ansible.builtin.debug:
+    msg: "Utilisateur DB : {{ db_utilisateur }}"
+
+- name: Afficher la cle API masquee (securite)
+  ansible.builtin.debug:
+    msg: "Cle API : {{ api_key[:8] }}...{{ api_key[-4:] }} (masquee)"
+
+# --- Creation d'un fichier de credentials securise ---
+- name: Deployer un fichier de credentials restreint
+  ansible.builtin.copy:
+    content: |
+      # Credentials - Fichier genere par Ansible
+      # ATTENTION : Ce fichier contient des informations sensibles
+      DB_USER={{ db_utilisateur }}
+      DB_PASS={{ db_mot_de_passe }}
+      API_KEY={{ api_key }}
+      AUTH_TOKEN={{ auth_token }}
+    dest: "{{ repertoire_config }}/.credentials"
+    owner: "{{ nom_utilisateur_app }}"
+    group: "{{ nom_groupe_app }}"
+    mode: "0600"
+
+- name: Verifier les permissions du fichier credentials
+  ansible.builtin.stat:
+    path: "{{ repertoire_config }}/.credentials"
+  register: credentials_info
+
+- name: Confirmer les permissions restrictives
+  ansible.builtin.debug:
+    msg: >-
+      Fichier .credentials - Permissions : {{ credentials_info.stat.mode }} |
+      Proprietaire : {{ credentials_info.stat.pw_name }}
+  when: credentials_info.stat.exists

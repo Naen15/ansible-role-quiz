@@ -1,0 +1,21 @@
+# Hote : {{ ansible_hostname }}
+# Date de deploiement : {{ ansible_date_time.date }}
+
+[database]
+hote=localhost
+port=3306
+utilisateur={{ db_utilisateur }}
+mot_de_passe={{ db_mot_de_passe }}
+
+[api]
+cle_api={{ api_key }}
+url_base=https://api.exemple.com/v1
+
+[authentification]
+token={{ auth_token }}
+admin={{ admin_mot_de_passe }}
+
+[application]
+nom={{ nom_application }}
+environnement={{ environnement }}
+mode_debug={{ mode_debug }}

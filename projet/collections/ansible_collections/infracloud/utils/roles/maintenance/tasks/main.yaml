@@ -1,0 +1,74 @@
+---
+# ----------------------------------------------------------
+# PARTIE 1 : Mise à jour du système
+# ----------------------------------------------------------
+- name: Mettre à jour les paquets (Ubuntu/Debian)
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+
+- name: Mettre à jour les paquets (Rocky/RedHat)
+  ansible.builtin.dnf:
+    update_cache: true
+  when: ansible_os_family == "RedHat"
+
+# ----------------------------------------------------------
+# PARTIE 2 : Installation des paquets de base
+# ----------------------------------------------------------
+- name: Installer les paquets communs (Ubuntu/Debian)
+  ansible.builtin.apt:
+    name: "{{ paquets_communs + paquets_ubuntu }}"
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Installer les paquets communs (Rocky/RedHat)
+  ansible.builtin.dnf:
+    name: "{{ paquets_communs + paquets_rocky }}"
+    state: present
+  when: ansible_os_family == "RedHat"
+
+# ----------------------------------------------------------
+# PARTIE 3 : Configuration du message du jour (MOTD)
+# ----------------------------------------------------------
+- name: Déployer le message du jour personnalisé
+  ansible.builtin.template:
+    src: motd.j2
+    dest: /etc/motd
+    owner: root
+    group: root
+    mode: "0644"
+  when: activer_motd | default(false)
+  notify: Afficher confirmation MOTD
+
+# ----------------------------------------------------------
+# PARTIE 4 : Création du répertoire de logs personnalisé
+# ----------------------------------------------------------
+- name: Créer le répertoire de logs applicatif
+  ansible.builtin.file:
+    path: /var/log/infracloud
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Créer le fichier de log initial
+  ansible.builtin.copy:
+    content: |
+      # Journal de maintenance InfraCloud
+      # Serveur : {{ ansible_hostname }}
+      # Initialisé le : {{ ansible_date_time.date }}
+    dest: /var/log/infracloud/maintenance.log
+    owner: root
+    group: root
+    mode: "0644"
+    force: false
+
+# ----------------------------------------------------------
+# PARTIE 5 : Affichage du résumé
+# ----------------------------------------------------------
+- name: Afficher le résumé de la maintenance
+  ansible.builtin.debug:
+    msg: >-
+      Maintenance terminée sur {{ ansible_hostname }} ({{ ansible_os_family }})
+      {{ paquets_communs | length }} paquets communs installés

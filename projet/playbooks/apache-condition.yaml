@@ -1,0 +1,19 @@
+---
+- name: Exo 27 utiliser when
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Installer seulement si c'est debian
+      ansible.builtin.apt:
+        name: apache2
+        state: present
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: installer nginx si la machine appartient a redhat
+      ansible.builtin.yum:
+        name: nginx
+        state: present
+      when: ansible_facts['os_family'] == "RedHat" or ansible_facts['os_family']== "Suse"
+
+    - name:

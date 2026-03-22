@@ -1,0 +1,57 @@
+---
+- name: Exo 25 déploiement d'une application Node.js
+  hosts: ubuntu
+  become: true
+
+  tasks:
+    - name: Mettre à jour les paquets ansible
+      ansible.builtin.apt:
+        name: "*"
+        state: latest
+        update_cache: true
+
+    - name: Installer git
+      ansible.builtin.apt:
+        name: git
+        state: present
+
+    - name: Télécharger le script Node.js
+      ansible.builtin.get_url:
+        url: https://deb.nodesource.com/setup_18.x
+        dest: /tmp/setup_node.sh
+        mode: "0755"
+        force: yes
+
+    - name: Exécuter le script d'installation Node.js
+      ansible.builtin.command: bash /tmp/setup_node.sh
+
+    - name: Installer Node.js
+      ansible.builtin.apt:
+        name: nodejs
+        state: present
+
+    - name: Cloner de dépôt git
+      ansible.builtin.git:
+        repo: https://gitlab.com/ftutorials-labs/quiz-ansible.git
+        dest: /opt/quiz-ansible
+        version: main
+        update: true
+        force: yes
+
+    - name: Installer dépendances (npm install)
+      ansible.builtin.shell: npm install
+      args:
+        chdir: /opt/quiz-ansible
+
+    - name: Compiler l'app
+      ansible.builtin.command: npm run build
+      args:
+        chdir: /opt/quiz-ansible
+
+    - name: Installer serve en global (via shell)
+      ansible.builtin.shell: npm install -g serve
+
+    - name: Lancer l'app en tache de fond
+      ansible.builtin.shell: "nohup serve -s build -l 3000 > /var/log/quiz.log 2>&1 &"
+      args:
+        chdir: /opt/quiz-ansible
